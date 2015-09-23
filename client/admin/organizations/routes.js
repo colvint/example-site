@@ -9,7 +9,7 @@ Router.route('/admin/organizations', {
     title: 'My Organizations'
   },
 
-  action: function () {
+  action() {
     this.render();
   }
 });
@@ -20,11 +20,11 @@ Router.route('/admin/organizations/:_id', {
   name: 'organizations-extended',
   parent: 'my-organizations',
 
-  title: function () {
+  title() {
     return this.data().title;
   },
 
-  data: function () {
+  data() {
     var organization = Organizations.findOne(this.params._id);
 
     return {
@@ -32,7 +32,7 @@ Router.route('/admin/organizations/:_id', {
     };
   },
 
-  action: function () {
+  action() {
     this.render();
   }
 });

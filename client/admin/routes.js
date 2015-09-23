@@ -6,11 +6,11 @@ Router.configure({
 AdminController = RouteController.extend({
   layoutTemplate: 'AdminLayout',
 
-  waitOn: function () {
+  waitOn() {
     return Meteor.subscribe('userData');
   },
 
-  onBeforeAction: function () {
+  onBeforeAction() {
     if (Meteor.userId()) {
       this.next();
     } else {
