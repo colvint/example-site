@@ -13,6 +13,16 @@ Package.describe({
 Package.onUse(function(api) {
   api.versionsFrom('1.2.0.1');
   api.use('ecmascript');
-  api.addFiles('client/meteor-site.js', 'client');
+
+  api.use([
+    'tauruscolvin:meteor-react-bootstrap'
+  ]);
+
+  api.addFiles([
+    'client/compatibility/metisMenu.js',
+    'client/meteor-site.js',
+    'client/lib/nav.jsx'
+  ], 'client');
+
   api.export('MeteorSite', 'client');
 });
