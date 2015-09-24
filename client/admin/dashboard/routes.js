@@ -10,6 +10,8 @@ Router.route('/admin', {
 
   action() {
     this.render();
-    this.render('CurrentOrganizationSelector', {to: 'page-header-right'});
+    this.render('CurrentOrganizationSelector', {
+      to: 'page-header-right'
+    });
   }
 });

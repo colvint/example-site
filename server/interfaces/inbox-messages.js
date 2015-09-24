@@ -12,6 +12,6 @@ Meteor.publish("unread-messages", function (user) {
 
 InboxMessages.allow({
   insert(userId, doc) {
-    return userId && userId === doc.senderId;
+    return userId === doc.senderId;
   }
 });
