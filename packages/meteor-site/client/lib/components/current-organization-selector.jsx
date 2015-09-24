@@ -28,8 +28,14 @@ var OrganizationList = ReactMeteor.createClass({
   render() {
     var membershipControls, joinBtn, leaveBtn, setCurrentBtn, currentBtn;
 
-    return (
-      <p>
+    if (this.props.organizations.length === 0) {
+      return (
+        <ReactBootstrap.Alert bsStyle='info'>
+          No organizations
+        </ReactBootstrap.Alert>
+      );
+    } else {
+      return (
         <ReactBootstrap.Table
           className="table table-bordered table-striped table-hover">
           <thead>
@@ -50,7 +56,7 @@ var OrganizationList = ReactMeteor.createClass({
                 );
               }
 
-              if (organization._id !== Meteor.user().currentOrganizationId && _.contains(Meteor.user().organizationIds, organization._id)) {
+              if (organization._id !== Meteor.user().currentOrganizationId && (_.contains(Meteor.user().organizationIds, organization._id) || Meteor.userId() === organization.ownerId)) {
                 setCurrentBtn = (
                   <ReactBootstrap.Button bsStyle='success' bsSize='small'
                     onClick={this.setCurrent.bind(this, organization._id)}>
@@ -99,8 +105,8 @@ var OrganizationList = ReactMeteor.createClass({
             })}
           </tbody>
         </ReactBootstrap.Table>
-      </p>
-    );
+      );
+    }
   }
 });
 
@@ -152,8 +158,7 @@ ReactMeteor.createClass({
     ownershipsTab = (
       <ReactBootstrap.TabPane
         eventKey='ownerships'
-        tab={<TabLabel title="Ownerships" count={this.state.ownerships.length}/>}
-        disabled={this.state.ownerships.length > 0}>
+        tab={<TabLabel title="Ownerships" count={this.state.ownerships.length}/>}>
         <OrganizationList
           organizations={this.state.ownerships}/>
       </ReactBootstrap.TabPane>
@@ -162,8 +167,7 @@ ReactMeteor.createClass({
     membershipsTab = (
       <ReactBootstrap.TabPane
         eventKey='memberships'
-        tab={<TabLabel title="Memberships" count={this.state.memberships.length}/>}
-        disabled={this.state.memberships.length === 0}>
+        tab={<TabLabel title="Memberships" count={this.state.memberships.length}/>}>
         <OrganizationList
           organizations={this.state.memberships}/>
       </ReactBootstrap.TabPane>
@@ -172,8 +176,7 @@ ReactMeteor.createClass({
     invitationsTab = (
       <ReactBootstrap.TabPane
         eventKey='invitations'
-        tab={<TabLabel title="Invitations" count={this.state.invitations.length}/>}
-        disabled={this.state.invitations.length === 0}>
+        tab={<TabLabel title="Invitations" count={this.state.invitations.length}/>}>
         <OrganizationList
           organizations={this.state.invitations}/>
       </ReactBootstrap.TabPane>
@@ -190,7 +193,8 @@ ReactMeteor.createClass({
         <ReactBootstrap.Modal
           show={this.state.isOpen}
           onHide={this.closeModal}
-          bsSize='large'>
+          bsSize='large'
+          className='current-organization-selector'>
           <ReactBootstrap.Modal.Header closeButton>
             Organizations
           </ReactBootstrap.Modal.Header>
@@ -199,8 +203,8 @@ ReactMeteor.createClass({
               activeKey={this.state.activeTab}
               onSelect={this.handleTabSelect}
               animation={false}>
-              {ownershipsTab}
               {membershipsTab}
+              {ownershipsTab}
               {invitationsTab}
             </ReactBootstrap.TabbedArea>
           </ReactBootstrap.Modal.Body>

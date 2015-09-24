@@ -1,6 +1,6 @@
 Router.route('/admin/settings', {
   controller: 'AdminController',
-  template: 'OrganizationsSettings',
+  template: 'OrganizationSettings',
   title: 'Settings',
   name: 'organization.settings',
   parent: 'dashboard',
