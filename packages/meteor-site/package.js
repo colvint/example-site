@@ -1,12 +1,8 @@
 Package.describe({
   name: 'meteor-site',
   version: '0.0.1',
-  // Brief, one-line summary of the package.
   summary: '',
-  // URL to the Git repository containing the source code for this package.
   git: '',
-  // By default, Meteor will default to using README.md for documentation.
-  // To avoid submitting documentation, set this field to null.
   documentation: 'README.md'
 });
 
@@ -15,13 +11,16 @@ Package.onUse(function(api) {
   api.use('ecmascript');
 
   api.use([
-    'tauruscolvin:meteor-react-bootstrap'
+    'tauruscolvin:meteor-react-bootstrap',
+    'iron:router'
   ]);
 
   api.addFiles([
     'client/compatibility/metisMenu.js',
     'client/meteor-site.js',
-    'client/lib/nav.jsx'
+    'client/lib/nav.jsx',
+    'client/lib/components/current-organization-selector.jsx',
+    'client/admin/routes.js'
   ], 'client');
 
   api.export('MeteorSite', 'client');
