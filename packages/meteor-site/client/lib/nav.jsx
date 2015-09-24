@@ -7,10 +7,10 @@ MeteorSite.Nav = {
         href: '/admin'
       },
       {
-        title: 'My Organizations',
-        faClass: 'fa-cubes',
-        href: '/admin/organizations'
-      },
+        title: 'Settings',
+        faClass: 'fa-cogs',
+        href: '/admin/settings'
+      }
     ]
   },
 

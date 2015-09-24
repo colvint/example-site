@@ -1,24 +1,82 @@
 Organizations.allow({
   insert(userId, doc) {
-    return (userId && doc.ownerId === userId);
+    return (userId === doc.ownerId);
   },
 
   update(userId, doc) {
-    return (userId && doc.ownerId === userId);
+    return (userId === doc.ownerId);
   }
 });
 
 Meteor.methods({
-  'organizations/join'(organizationId) {
-    check(organizationId, String);
-    var organization = Organizations.findOne(organizationId);
-    organization.addMember(this.userId);
+  'organizations/inviteMember'(userId, organizationId) {
+    var user = Meteor.users.findOne(userId),
+        organization = Organizations.findOne(organizationId);
+
+    if (this.userId !== organization.ownerId)
+      throw new Meteor.Error('organizations-membership',
+        "Only the organization owner can invite a member.");
+
+    if (_.contains(user.organizationIds, organizationId))
+      throw new Meteor.Error('organizations-membership',
+        "Unable to invite member.");
+
+    Organizations.update(organizationId, {
+      $push: {invitationIds: userId}
+    });
+
+    Meteor.users.update(userId, {
+      $push: {invitationIds: organizationId}
+    });
   },
 
-  'organizations/leave'(organizationId) {
-    check(organizationId, String);
-    var organization = Organizations.findOne(organizationId);
-    organization.removeMember(this.userId);
+  'organizations/addMember'(userId, organizationId) {
+    var user = Meteor.users.findOne(userId),
+        organization = Organizations.findOne(organizationId);
+
+    if (this.userId !== organization.ownerId && this.userId !== userId)
+      throw new Meteor.Error('organizations-membership',
+        "Only the organization owner or the member can add a member.");
+
+    if (_.contains(user.organizationIds, organizationId))
+      throw new Meteor.Error('organizations-membership',
+        "Unable to add member.");
+
+    if (this.invitationOnly)
+      throw new Meteor.Error('organizations-membership',
+        "This organization is invitation only.");
+
+    Organizations.update(organizationId, {
+      $push: {memberIds: userId},
+      $inc: {memberCount: 1},
+      $pullAll: {invitationIds: [organizationId]}
+    });
+
+    Meteor.users.update(userId, {
+      $push: {organizationIds: organizationId},
+      $pullAll: {invitationIds: [organizationId]}
+    });
+  },
+
+  'organizations/removeMember'(userId, organizationId) {
+    var user = Meteor.users.findOne(userId),
+        organization = Organizations.findOne(organizationId);
+
+    if (this.userId !== organization.ownerId && this.userId !== userId)
+      throw new Meteor.Error('organizations-membership',
+        "Only the organization owner or the member can remove a member.");
+
+    if (!_.contains(organization.memberIds, this.userId))
+      throw new Meteor.Error('organizations-membership',
+        "Unable to remove member.");
+
+    Organizations.update(organizationId, {
+      $pullAll: {memberIds: [userId]},
+      $inc: {memberCount: -1}
+    });
+    Meteor.users.update(userId, {
+      $pullAll: {organizationIds: [organizationId]}
+    });
   }
 });
 
@@ -30,30 +88,12 @@ Meteor.publish('my-organizations', function () {
     {
       $or: [
         {ownerId: this.userId},
-        {_id: {$in: currentUser.organizationIds}}
+        {_id: {$in: currentUser.organizationIds}},
+        {_id: {$in: currentUser.invitationIds}}
       ]
     },
     {
-      fields: {memberIds: 0}
+      fields: {memberIds: 0, invitationIds: 0 }
     }
   );
-});
-
-Meteor.publish('joinable-organizations', function (searchTerm) {
-  var currentUser, selector, regex;
-
-  if (currentUser = Meteor.users.findOne(this.userId)) {
-    selector = {
-      ownerId: {$ne: this.userId},
-      _id: {$nin: currentUser.organizationIds}
-    };
-    if (searchTerm) {
-      regex = new RegExp(searchTerm, 'i');
-      _.extend(selector, {name: {$regex: regex}});
-    }
-
-    return Organizations.find(selector, {limit: 10});
-  } else {
-    return this.ready();
-  }
 });

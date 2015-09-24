@@ -1,5 +1,6 @@
 Accounts.onCreateUser((options, user) => {
   user.organizationIds = [];
+  user.invitationIds = [];
   if (options.profile) user.profile = options.profile;
 
   return user;
@@ -12,6 +13,7 @@ Meteor.publish("userData", function () {
       {
         fields: {
           organizationIds: 1,
+          invitationIds: 1,
           currentOrganizationId: 1,
           currentSchoolId: 1
         }
@@ -24,18 +26,12 @@ Meteor.publish("userData", function () {
 
 Meteor.methods({
   'users/switchToOrganization'(organizationId) {
-    check(organizationId, String);
+    if (!this.userId)
+      throw new Meteor.Error('not-logged-in',
+        "You must be logged in to switch organizations.");
 
-    if (!this.userId) throw new Meteor.Error('not-logged-in', "You must be logged in to switch organizations.");
-
-    Meteor.users.findOne(this.userId).switchToOrganization(organizationId);
-  },
-
-  'users/setCurrentSchool'(schoolId) {
-    check(schoolId, String);
-
-    if (!this.userId) throw new Meteor.Error('not-logged-in', "You must be logged in to set your current school.");
-
-    Meteor.users.findOne(this.userId).setCurrentSchool(schoolId);
+    Meteor.users.update(this.userId, {
+      $set: {currentOrganizationId: organizationId}
+    });
   }
 });
