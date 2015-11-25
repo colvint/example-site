@@ -15,7 +15,8 @@ Meteor.publish("userData", function () {
           organizationIds: 1,
           invitationIds: 1,
           currentOrganizationId: 1,
-          currentSchoolId: 1
+          currentSchoolId: 1,
+          currentSchoolYear: 1
         }
       }
     );

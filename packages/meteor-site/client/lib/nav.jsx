@@ -7,6 +7,11 @@ MeteorSite.Nav = {
         href: '/admin'
       },
       {
+        title: 'Users',
+        faClass: 'fa-users',
+        href: '/admin/users'
+      },
+      {
         title: 'Settings',
         faClass: 'fa-cogs',
         href: '/admin/settings'

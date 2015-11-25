@@ -1,18 +1,17 @@
-Router.route('/admin/settings', {
-  controller: 'AdminController',
-  template: 'OrganizationSettings',
-  title: 'Settings',
-  name: 'organization.settings',
-  parent: 'dashboard',
+Router.configure({
+  notFoundTemplate: 'NotFound',
+  loadingTemplate: 'Loading'
+});
 
-  data: {
-    title: 'Settings'
-  },
+AdminController = RouteController.extend({
+  layoutTemplate: 'AdminLayout',
 
-  action() {
-    this.render();
-    this.render('CurrentOrganizationSelector', {
-      to: 'page-header-right'
-    });
+  onBeforeAction() {
+    if (Meteor.userId()) {
+      this.next();
+    } else {
+      this.render('AccessDenied');
+      this.layout('ErrorLayout');
+    }
   }
 });
