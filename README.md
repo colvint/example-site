@@ -1,1 +1,1 @@
-# meteor-site
+# example-site
