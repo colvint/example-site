@@ -12,11 +12,11 @@ Relation = class Relation {
     return _.pluck(this.allowedOptions(), '_id');
   }
 
-  relatedValue(id) {
-    if (!id) return null;
+  relatedValues(idList) {
+    var relations = this.collection.find({_id: {$in: idList}}).fetch();
 
-    var relation = this.collection.findOne(id);
-
-    return relation ? relation.name : 'Relation not found';
+    return _.map(relations, (relation) => {
+      return relation.label();
+    }).join(', ');
   }
 }
